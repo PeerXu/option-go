@@ -1,19 +1,16 @@
 package option
 
-import "github.com/stretchr/objx"
+import "github.com/jinzhu/copier"
 
-type Option = objx.Map
+type Option = map[string]any
 
 type ApplyOption = func(Option)
 
 func NewOption(x ...map[string]any) Option {
-	var m map[string]any
 	if len(x) > 0 {
-		m = x[0]
-	} else {
-		m = map[string]any{}
+		return x[0]
 	}
-	return objx.New(m)
+	return map[string]any{}
 }
 
 func Apply(opts ...ApplyOption) Option {
@@ -22,7 +19,8 @@ func Apply(opts ...ApplyOption) Option {
 }
 
 func ApplyWithDefault(d Option, opts ...ApplyOption) Option {
-	o := d.Copy()
+	o := map[string]any{}
+	copier.CopyWithOption(&d, &o, copier.Option{DeepCopy: true})
 	for _, apply := range opts {
 		apply(o)
 	}
