@@ -20,7 +20,7 @@ func Apply(opts ...ApplyOption) Option {
 
 func ApplyWithDefault(d Option, opts ...ApplyOption) Option {
 	o := map[string]any{}
-	copier.CopyWithOption(&d, &o, copier.Option{DeepCopy: true})
+	copier.CopyWithOption(&o, &d, copier.Option{DeepCopy: true})
 	for _, apply := range opts {
 		apply(o)
 	}
