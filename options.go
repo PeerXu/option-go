@@ -2,15 +2,15 @@ package option
 
 import "github.com/jinzhu/copier"
 
-type Option = map[string]any
+type Option = map[structKey]any
 
 type ApplyOption = func(Option)
 
-func NewOption(x ...map[string]any) Option {
+func NewOption(x ...map[structKey]any) Option {
 	if len(x) > 0 {
 		return x[0]
 	}
-	return map[string]any{}
+	return map[structKey]any{}
 }
 
 func Apply(opts ...ApplyOption) Option {
@@ -19,7 +19,7 @@ func Apply(opts ...ApplyOption) Option {
 }
 
 func ApplyWithDefault(d Option, opts ...ApplyOption) Option {
-	o := map[string]any{}
+	o := NewOption()
 	copier.CopyWithOption(&o, &d, copier.Option{DeepCopy: true})
 	for _, apply := range opts {
 		apply(o)
