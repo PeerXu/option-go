@@ -1,31 +1,29 @@
 package option_test
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/PeerXu/option-go/v2"
 )
 
-var OPTION_VAL1, WithVal1, GetVal1 = option.New[int]("val1")
-var OPTION_VAL2, WithVal2, MustGetVal2 = option.NewMust[int]("val2")
+var WithName, GetName = option.LightNew[string]()
 
-func TestOption(t *testing.T) {
-	opts := []option.ApplyOption{WithVal1(1)}
-	ctx := option.Apply(opts...)
-	val, err := GetVal1(ctx)
+func exampleGreeting(aos ...option.ApplyOption) (string, error) {
+	opts := option.Apply(aos...)
+	name, err := GetName(opts)
+	if err != nil {
+		return "", err
+	}
+	return fmt.Sprintf("Hello, %s", name), nil
+}
+
+func TestGreeting(t *testing.T) {
+	message, err := exampleGreeting(WithName("World"))
 	if err != nil {
 		t.Fatal(err)
 	}
-	if val != 1 {
-		t.Fatalf("val not equal 1")
-	}
-}
-
-func TestMust(t *testing.T) {
-	opts := []option.ApplyOption{WithVal2(1)}
-	ctx := option.Apply(opts...)
-	val := MustGetVal2(ctx)
-	if val != 1 {
-		t.Fatalf("val not equal 1")
+	if message != "Hello, World" {
+		t.Fatalf("message not equal Hello, World")
 	}
 }

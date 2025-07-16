@@ -1,9 +1,10 @@
 package option
 
-type structKey struct {
+// OptionKey is a key for option.
+type OptionKey struct {
 	key string
 }
 
-func (k structKey) String() string {
+func (k OptionKey) String() string {
 	return k.key
 }
