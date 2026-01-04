@@ -1,6 +1,6 @@
 package option
 
-import "github.com/jinzhu/copier"
+import "maps"
 
 type Option = map[OptionKey]any
 
@@ -23,9 +23,13 @@ func Apply(opts ...ApplyOption) Option {
 // ApplyWithDefault applies the options to a default option.
 func ApplyWithDefault(d Option, opts ...ApplyOption) Option {
 	o := NewOption()
-	copier.CopyWithOption(&o, &d, copier.Option{DeepCopy: true})
+
+	// Create a shallow copy of the default option
+	maps.Copy(o, d)
+
 	for _, apply := range opts {
 		apply(o)
 	}
+
 	return o
 }

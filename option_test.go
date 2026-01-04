@@ -34,10 +34,10 @@ func TestLightMustNew(t *testing.T) {
 func TestNew(t *testing.T) {
 	// Test with no key provided
 	_, WithVal3, GetVal3 := option.New[float64]()
-	
+
 	opts := []option.ApplyOption{WithVal3(3.14)}
 	ctx := option.Apply(opts...)
-	
+
 	// Test getter functionality
 	val, err := GetVal3(ctx)
 	if err != nil {
@@ -46,19 +46,19 @@ func TestNew(t *testing.T) {
 	if val != 3.14 {
 		t.Fatalf("val not equal 3.14, got %v", val)
 	}
-	
+
 	// Test with explicit key
 	key2, WithVal4, GetVal4 := option.New[[]string]("string-slice")
 	testSlice := []string{"a", "b", "c"}
-	
+
 	opts2 := []option.ApplyOption{WithVal4(testSlice)}
 	ctx2 := option.Apply(opts2...)
-	
+
 	// Verify key is set correctly
 	if key2.String() != "string-slice" {
 		t.Fatalf("key not set correctly, expected 'string-slice', got %v", key2.String())
 	}
-	
+
 	// Test getter functionality with explicit key
 	val2, err := GetVal4(ctx2)
 	if err != nil {
@@ -72,28 +72,28 @@ func TestNew(t *testing.T) {
 func TestNewMust(t *testing.T) {
 	// Test with no key provided
 	_, WithVal5, MustGetVal5 := option.NewMust[bool]()
-	
+
 	opts := []option.ApplyOption{WithVal5(true)}
 	ctx := option.Apply(opts...)
-	
+
 	// Test must getter functionality
 	val := MustGetVal5(ctx)
 	if !val {
 		t.Fatalf("val not equal true")
 	}
-	
+
 	// Test with explicit key
 	key2, WithVal6, MustGetVal6 := option.NewMust[map[string]int]("map-key")
 	testMap := map[string]int{"one": 1, "two": 2}
-	
+
 	opts2 := []option.ApplyOption{WithVal6(testMap)}
 	ctx2 := option.Apply(opts2...)
-	
+
 	// Verify key is set correctly
 	if key2.String() != "map-key" {
 		t.Fatalf("key not set correctly, expected 'map-key', got %v", key2.String())
 	}
-	
+
 	// Test must getter functionality with explicit key
 	val2 := MustGetVal6(ctx2)
 	if len(val2) != len(testMap) {
@@ -101,5 +101,35 @@ func TestNewMust(t *testing.T) {
 	}
 	if val2["one"] != 1 {
 		t.Fatalf("map value mismatch, expected 1 for key 'one', got %d", val2["one"])
+	}
+}
+
+func TestWithDefaultValue(t *testing.T) {
+	KEY_CTX, WithVal, GetVal := option.New[string]("test-key")
+	defaultValue := func() option.Option {
+		return option.NewOption(map[option.OptionKey]any{
+			KEY_CTX: "default",
+		})
+	}
+
+	result := option.ApplyWithDefault(defaultValue())
+	if result == nil {
+		t.Fatal("ApplyWithDefault returned nil")
+	}
+
+	val, err := GetVal(result)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if val != "default" {
+		t.Fatalf("val not equal 'default', got %s", val)
+	}
+
+	val2, err := GetVal(option.ApplyWithDefault(defaultValue(), WithVal("provided")))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if val2 != "provided" {
+		t.Fatalf("val not equal 'provided', got %s", val2)
 	}
 }

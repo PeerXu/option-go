@@ -1,4 +1,2 @@
 github.com/PeerXu/errors-go/v2 v2.0.0 h1:2fbh664vUK/sR3OQp9r0md6dkSIRMTQyPwQF4IrQTq4=
 github.com/PeerXu/errors-go/v2 v2.0.0/go.mod h1:U0oa3Rbd7CojwCAGX9uGES89ezXvUSvgbame1I/y80Y=
-github.com/jinzhu/copier v0.4.0 h1:w3ciUoD19shMCRargcpm0cm91ytaBhDvuRpz1ODO/U8=
-github.com/jinzhu/copier v0.4.0/go.mod h1:DfbEm0FYsaqBcKcFuvmOZb218JkPGtvSHsKg8S8hyyg=
