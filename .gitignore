@@ -13,3 +13,12 @@
 
 # Dependency directories (remove the comment below to include it)
 # vendor/
+
+# AI coding instructions
+AGENTS.md
+CLAUDE.md
+.cursorrules
+.cursor/rules/
+.github/copilot-instructions.md
+opencode.json
+.opencode/
