@@ -1,5 +1,12 @@
 package option
 
+import (
+	"fmt"
+	"sync/atomic"
+)
+
+var autoKeySeq atomic.Uint64
+
 // LightNew returns a setter and getter.
 func LightNew[T any](ks ...string) (SetOptionFunc[T], GetOptionFunc[T]) {
 	_, setter, getter := new[T](ks...)
@@ -28,6 +35,8 @@ func new[T any](ks ...string) (OptionKey, SetOptionFunc[T], GetOptionFunc[T]) {
 	var k string
 	if len(ks) > 0 {
 		k = ks[0]
+	} else {
+		k = fmt.Sprintf("__auto_%d", autoKeySeq.Add(1))
 	}
 	sk := OptionKey{key: k}
 	return sk, Setter[T](sk), Getter[T](sk)

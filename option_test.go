@@ -1,6 +1,7 @@
 package option_test
 
 import (
+	"errors"
 	"testing"
 
 	"github.com/PeerXu/option-go/v2"
@@ -131,5 +132,90 @@ func TestWithDefaultValue(t *testing.T) {
 	}
 	if val2 != "provided" {
 		t.Fatalf("val not equal 'provided', got %s", val2)
+	}
+}
+
+func TestGetMissingOption(t *testing.T) {
+	_, _, GetVal := option.New[int]("missing")
+	opts := option.Apply()
+	_, err := GetVal(opts)
+	if err == nil {
+		t.Fatal("expected error for missing option, got nil")
+	}
+	if !errors.Is(err, option.ErrOptionRequired) {
+		t.Fatalf("expected ErrOptionRequired, got %v", err)
+	}
+}
+
+func TestGetUnexpectedType(t *testing.T) {
+	_, WithInt, GetInt := option.New[int]("type-mismatch")
+	_, _, GetString := option.New[string]("type-mismatch")
+	opts := option.Apply(WithInt(42))
+	_, err := GetString(opts)
+	if err == nil {
+		t.Fatal("expected error for type mismatch, got nil")
+	}
+	if !errors.Is(err, option.ErrUnexpectedType) {
+		t.Fatalf("expected ErrUnexpectedType, got %v", err)
+	}
+	_, err = GetInt(opts)
+	if err != nil {
+		t.Fatalf("expected no error for correct type, got %v", err)
+	}
+}
+
+func TestMultipleOptionsSameType(t *testing.T) {
+	WithA, GetA := option.LightNew[int]()
+	WithB, GetB := option.LightNew[int]()
+
+	opts := option.Apply(WithA(10), WithB(20))
+	a, err := GetA(opts)
+	if err != nil {
+		t.Fatal(err)
+	}
+	b, err := GetB(opts)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if a != 10 {
+		t.Fatalf("expected 10, got %d", a)
+	}
+	if b != 20 {
+		t.Fatalf("expected 20, got %d", b)
+	}
+}
+
+func TestMustPanicsOnMissingOption(t *testing.T) {
+	_, MustGetVal := option.LightMustNew[int]()
+	opts := option.Apply()
+
+	defer func() {
+		r := recover()
+		if r == nil {
+			t.Fatal("expected panic for missing option, got none")
+		}
+		err, ok := r.(error)
+		if !ok {
+			t.Fatalf("expected error from panic, got %T", r)
+		}
+		if !errors.Is(err, option.ErrOptionRequired) {
+			t.Fatalf("expected ErrOptionRequired, got %v", err)
+		}
+	}()
+
+	MustGetVal(opts)
+}
+
+func TestNewOptionNoAliasing(t *testing.T) {
+	orig := map[option.OptionKey]any{}
+	key, WithVal, _ := option.New[string]("alias-test")
+
+	orig[key] = "original"
+	copied := option.NewOption(orig)
+	WithVal("modified")(copied)
+
+	val := orig[key].(string)
+	if val != "original" {
+		t.Fatalf("NewOption aliased the input map: expected 'original', got %q", val)
 	}
 }
